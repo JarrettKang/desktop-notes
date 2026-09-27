@@ -8,7 +8,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>DesktopNotes</AssemblyName>
     <RootNamespace>DesktopNotes</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Product>Desktop Notes</Product>
     <Description>Windows desktop sticky notes with optional checklists.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

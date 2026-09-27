@@ -293,7 +293,7 @@ public partial class NoteWindow : Window
     }
 
     private void New_Click(object sender, RoutedEventArgs e) => NewRequested?.Invoke();
-    private void Hide_Click(object sender, RoutedEventArgs e) => Close();
+    private void Minimize_Click(object sender, RoutedEventArgs e) => Close();
     private void Pin_Click(object sender, RoutedEventArgs e)
     {
         Note.Pinned = !Note.Pinned;

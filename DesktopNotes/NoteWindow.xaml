@@ -30,7 +30,7 @@
               <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE718;" FontSize="14"/>
             </Button>
             <Button x:Name="MoreButton" Style="{StaticResource ToolButton}" Content="···" ToolTip="颜色和更多选项" AutomationProperties.Name="更多选项" Click="More_Click"/>
-            <Button Style="{StaticResource ToolButton}" Content="×" ToolTip="收起到任务栏（点击任务栏图标恢复）" AutomationProperties.Name="收起便签" Click="Hide_Click"/>
+            <Button Style="{StaticResource ToolButton}" Content="—" ToolTip="最小化到任务栏（点击任务栏图标恢复）" AutomationProperties.Name="最小化便签" Click="Minimize_Click"/>
           </StackPanel>
         </Grid>
       </Border>

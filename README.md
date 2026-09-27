@@ -15,7 +15,7 @@
 
 系统要求：Windows 10 / 11，以及 [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)（Windows x64 桌面运行时）。
 
-在仓库的 Releases 页面下载 `DesktopNotes-v0.1.0-win-x64.zip`，解压整个文件夹后双击 `DesktopNotes.exe`。请保留同目录的 DLL 和配置文件。
+在仓库的 [Releases 页面](https://github.com/JarrettKang/desktop-notes/releases/latest)下载 `DesktopNotes-v0.1.1-win-x64.zip`，解压整个文件夹后双击 `DesktopNotes.exe`。请保留同目录的 DLL 和配置文件。
 
 从源码使用时，先按下方说明构建，再双击项目根目录的 `启动便签.cmd`，或打开 `artifacts/app/DesktopNotes.exe`。
 
@@ -31,7 +31,7 @@
 - 点击图钉开关置顶。
 - 点击 `···` 换颜色或删除便签。删除前会确认。
 - 底部任务栏与右下角托盘都使用黄色便签图标。多张便签由 Windows 按应用分组，可从任务栏预览选择。
-- 点击 `×` 或按 `Alt+F4` 保存并最小化当前便签到任务栏，点击对应的任务栏图标或预览即可恢复。完全退出请使用托盘右键菜单的“退出”。
+- 点击右上角 `—` 或按 `Alt+F4` 保存并最小化当前便签到任务栏，点击对应的任务栏图标或预览即可恢复。完全退出请使用托盘右键菜单的“退出”。
 - 在任务栏右下角找到黄色便签托盘图标（可能在折叠菜单里），双击显示所有便签；右键可以新建、显示全部或退出。
 - 再次运行程序会显示已有便签，不会重复启动。
 - `Ctrl+S` 立即保存。退出后再次打开会恢复所有便签、位置、大小、颜色和置顶状态。
