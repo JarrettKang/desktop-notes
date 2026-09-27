@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+artifacts/
+.vs/
+.idea/
+*.user
+*.suo
+.env
+.env.*
+**/notes.json
+**/notes.json.*

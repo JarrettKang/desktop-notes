@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>DesktopNotes</AssemblyName>
+    <RootNamespace>DesktopNotes</RootNamespace>
+    <Version>0.1.0</Version>
+    <Product>Desktop Notes</Product>
+    <Description>Windows desktop sticky notes with optional checklists.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets/Note.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup><Resource Include="Assets/Note.ico"/></ItemGroup>
+</Project>
