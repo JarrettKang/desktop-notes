@@ -9,3 +9,7 @@ artifacts/
 .env.*
 **/notes.json
 **/notes.json.*
+.desktop-notes/
+**/last-startup.json
+**/migrated-sources.json
+**/legacy-backup/

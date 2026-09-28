@@ -32,8 +32,9 @@ public partial class App : Application
         base.OnStartup(e);
         try
         {
-            var directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopNotes");
-            if (e.Args.Length == 2 && e.Args[0] == "--data-dir") directory = Path.GetFullPath(e.Args[1]);
+            var directory = DataLocation.DefaultDirectory;
+            var customDirectory = e.Args.Length == 2 && e.Args[0] == "--data-dir";
+            if (customDirectory) directory = Path.GetFullPath(e.Args[1]);
             var identity = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(Environment.UserName + directory.ToUpperInvariant())))[..24];
             activateEvent = new EventWaitHandle(false, EventResetMode.AutoReset, @"Local\DesktopNotes.Show." + identity);
             instanceMutex = new Mutex(true, @"Local\DesktopNotes.Instance." + identity, out ownsMutex);
@@ -44,7 +45,9 @@ public partial class App : Application
                 return;
             }
             store = new NoteStore(directory);
+            if (!customDirectory) LegacyMigration.Import(store, DataLocation.LegacyDirectories());
             notes = store.Load();
+            WriteStartupDiagnostic(directory);
             saveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(450) };
             saveTimer.Tick += (_, _) => Save();
             CreateTray();
@@ -60,6 +63,23 @@ public partial class App : Application
                 (store is null ? "" : "\n\n数据位置：" + store.FilePath), "桌面便签", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown(1);
         }
+    }
+
+    private void WriteStartupDiagnostic(string directory)
+    {
+        try
+        {
+            Directory.CreateDirectory(directory);
+            File.WriteAllText(Path.Combine(directory, "last-startup.json"), System.Text.Json.JsonSerializer.Serialize(new
+            {
+                StartedAt = DateTimeOffset.Now,
+                ProcessId = Environment.ProcessId,
+                DataFile = store.FilePath,
+                Notes = notes.Select(n => new { n.Id, CharacterCount = n.Text.Length }).ToArray()
+            }));
+        }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
     }
 
     private void CreateWindow(Note note)

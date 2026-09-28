@@ -25,6 +25,7 @@ internal static class Program
         try
         {
             VerifyStorage(runDirectory);
+            VerifyMigration(runDirectory);
             VerifyChecklistText();
             VerifyWindow(runDirectory, directory);
             Console.WriteLine($"PASS: {checks} checks. Rendered previews: {directory}");
@@ -69,6 +70,44 @@ internal static class Program
         catch (InvalidDataException) { Check(true, "future format is rejected safely"); }
         store.Save(Array.Empty<Note>());
         Check(store.Load().Count == 0, "deleting last note persists an empty collection");
+    }
+
+    private static void VerifyMigration(string directory)
+    {
+        Check(DataLocation.DefaultDirectory == Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".desktop-notes"),
+            "default data location stays outside virtualized AppData");
+        var first = new NoteStore(Path.Combine(directory, "legacy-first"));
+        var second = new NoteStore(Path.Combine(directory, "legacy-second"));
+        var destination = new NoteStore(Path.Combine(directory, "migrated"));
+        var original = new Note { Text = "☐ 昨天的记录", Left = 123, Top = 234, Color = "green" };
+        first.Save(new[] { original });
+        second.Save(new[] { new Note { Id = original.Id, Text = "☑ 昨天的记录", Left = 321, Pinned = true }, new Note { Text = "另一个启动入口的新内容" }, new Note() });
+        File.SetLastWriteTimeUtc(first.FilePath, DateTime.UtcNow.AddMinutes(-2));
+        File.SetLastWriteTimeUtc(second.FilePath, DateTime.UtcNow.AddMinutes(-1));
+        var sources = new[] { Path.GetDirectoryName(first.FilePath)!, Path.GetDirectoryName(second.FilePath)!, Path.GetDirectoryName(first.FilePath)! };
+        Check(LegacyMigration.Import(destination, sources) == 3, "migration merges launch-context stores and keeps differing text as a recovered note");
+        var loaded = destination.Load();
+        Check(loaded.All(n => !string.IsNullOrWhiteSpace(n.Text)), "empty legacy placeholders do not cover recovered content");
+        Check(loaded.Single(n => n.Id == original.Id).Text == "☑ 昨天的记录" && loaded.Single(n => n.Id == original.Id).Pinned,
+            "latest legacy note retains its identity, completed state and preferences");
+        Check(loaded.Any(n => n.Text == "☐ 昨天的记录" && n.Left == 123 && n.Color == "green"), "older differing content is preserved, not overwritten");
+        Check(first.Load().Single().Text == "☐ 昨天的记录" && second.Load().Count == 3, "migration leaves original source files intact");
+        Check(Directory.GetFiles(Path.Combine(Path.GetDirectoryName(destination.FilePath)!, "legacy-backup"), "source-*.json", SearchOption.AllDirectories).Length == 2,
+            "migration creates separate backups and deduplicates source aliases");
+        File.Delete(Path.Combine(Path.GetDirectoryName(destination.FilePath)!, "migrated-sources.json"));
+        Check(LegacyMigration.Import(destination, sources) == 0 && destination.Load().Count == 3, "retry after interrupted migration does not duplicate recovery notes");
+        destination.Save(Array.Empty<Note>());
+        Check(LegacyMigration.Import(destination, sources) == 0 && destination.Load().Count == 0, "later startup does not resurrect deleted migrated notes");
+        var third = new NoteStore(Path.Combine(directory, "legacy-third"));
+        third.Save(new[] { new Note { Text = "刚发现的另一份旧数据" } });
+        Check(LegacyMigration.Import(destination, new[] { Path.GetDirectoryName(third.FilePath)! }) == 1 && destination.Load().Single().Text == "刚发现的另一份旧数据",
+            "a previously unseen launch-context store can still be recovered");
+        var before = File.ReadAllText(destination.FilePath);
+        var brokenDirectory = Path.Combine(directory, "legacy-broken");
+        Directory.CreateDirectory(brokenDirectory);
+        File.WriteAllText(Path.Combine(brokenDirectory, "notes.json"), "{broken");
+        try { LegacyMigration.Import(destination, new[] { brokenDirectory }); throw new Exception("Broken legacy data was accepted"); }
+        catch (JsonException) { Check(File.ReadAllText(destination.FilePath) == before, "invalid legacy data leaves existing destination content untouched"); }
     }
 
     private static void VerifyWindow(string directory, string previews)

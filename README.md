@@ -15,7 +15,9 @@
 
 系统要求：Windows 10 / 11，以及 [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)（Windows x64 桌面运行时）。
 
-在仓库的 [Releases 页面](https://github.com/JarrettKang/desktop-notes/releases/latest)下载 `DesktopNotes-v0.1.1-win-x64.zip`，解压整个文件夹后双击 `DesktopNotes.exe`。请保留同目录的 DLL 和配置文件。
+在仓库的 [Releases 页面](https://github.com/JarrettKang/desktop-notes/releases/latest)下载 `DesktopNotes-v0.1.2-win-x64.zip`，解压整个文件夹后双击 `DesktopNotes.exe`。请保留同目录的 DLL 和配置文件。
+
+升级旧版时，请先从托盘右键菜单选择“退出”，再运行新版。v0.1.2 会自动查找并迁移旧记录，无需手动复制数据文件。建议完成升级后使用新版入口，避免继续运行仍使用旧数据目录的版本。
 
 从源码使用时，先按下方说明构建，再双击项目根目录的 `启动便签.cmd`，或打开 `artifacts/app/DesktopNotes.exe`。
 
@@ -40,7 +42,11 @@
 
 ## 数据
 
-默认位置：`%LOCALAPPDATA%\DesktopNotes\notes.json`。
+默认位置：`%USERPROFILE%\.desktop-notes\notes.json`。
+
+从 v0.1.2 开始，数据统一保存在用户目录下，避免 Windows 对不同启动来源的 AppData 路径重定向，造成“从桌面打开后记录不见了”。首次发现旧目录时，会自动导入旧版 AppData 和应用包缓存中的便签，保留原文件，并在新目录的 `legacy-backup` 中另存迁移备份。同一条便签有不同内容时会保留为独立副本；迁移过的来源不会反复导入，已删除的便签也不会在下次启动时重新出现。
+
+`last-startup.json` 仅记录启动时间、进程、数据路径和便签字数，不记录正文，用于排查启动与读取问题。`--data-dir` 指定的测试目录不会自动导入个人便签。
 
 保存时先完整写入临时文件，再替换主文件；上一次保存保留为 `notes.json.bak`。保存失败时窗口底部会显示错误，关闭和退出会被阻止，以便重试。强制结束进程或突然断电仍可能丢失尚未保存的最近编辑。
 
